@@ -1,29 +1,27 @@
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .forms import *
 from .models import *
+from .utils import *
 
-menu = [{'title':"О сайте", 'url_name':'about'},
-        {'title':"Добавить статью", 'url_name':'add_page'},
-        {'title':"Обратная связь", 'url_name':'contact'},
-        {'title':"Войти", 'url_name':'login'}
-]
 
-class ProfessionsHome(ListView):
+
+class ProfessionsHome(DataMixin, ListView):
     model = Professions
     template_name = 'professions/index.html'
     context_object_name = 'posts'
 
 
+
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['menu'] = menu
-        context['title'] = 'Главная Страница'
-        context['cat_selected'] = 0
-        return context
+        c_def = self.get_user_context(title="Главная Страница")
+        return dict(list(context.items()) + list(c_def.items()))
 
 # def index(request):
 #     posts = Professions.objects.all()
@@ -39,16 +37,17 @@ class ProfessionsHome(ListView):
 def about(request):
     return render(request, 'professions/about.html', {'title': 'О Сайте'})
 
-class AddPage(CreateView):
+class AddPage(LoginRequiredMixin, DataMixin, CreateView):
     form_class = AddPostForm
     template_name = 'professions/addpage.html'
     success_url = reverse_lazy('home')
+    login_url = reverse_lazy('home')
+    raise_exception = True
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Добавление статьи'
-        context['menu'] = menu
-        return context
+        c_def = self.get_user_context(title="Добавление Статьи")
+        return dict(list(context.items()) + list(c_def.items()))
 
 # def addpage(request):
 #     if request.method == 'POST':
@@ -73,7 +72,7 @@ def login(request):
 def pageNotFound(request, exception):
     return HttpResponseNotFound('<h1>Страница не найдена</h1>')
 
-class ShowPost(DetailView):
+class ShowPost(DataMixin, DetailView):
     model = Professions
     template_name = 'professions/post.html'
     slug_url_kwarg = 'post_slug'
@@ -81,9 +80,8 @@ class ShowPost(DetailView):
 
     def get_context_data(self,*, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = context['post']
-        context['menu'] = menu
-        return context
+        c_def = self.get_user_context(title=context['post'])
+        return dict(list(context.items()) + list(c_def.items()))
 
 # def show_post(request, post_slug):
 #     post = get_object_or_404(Professions, slug=post_slug)
@@ -97,7 +95,7 @@ class ShowPost(DetailView):
 #     }
 #     return render(request, 'professions/post.html', context=context)
 
-class ProfessionsCategory(ListView):
+class ProfessionsCategory(DataMixin, ListView):
     model = Professions
     template_name = 'professions/index.html'
     context_object_name = 'posts'
@@ -107,11 +105,10 @@ class ProfessionsCategory(ListView):
         return Professions.objects.filter(cat__slug=self.kwargs['cat_slug'])
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        context =super().get_context_data(**kwargs)
-        context['title'] = 'Категория - ' + str(context['posts'][0].cat)
-        context['menu'] = menu
-        context['cat_selected'] = context['posts'][0].cat_id
-        return context
+        context = super().get_context_data(**kwargs)
+        c_def = self.get_user_context(title='Категория - ' + str(context['posts'][0].cat),
+                                      cat_selected=context['posts'][0].cat_id)
+        return dict(list(context.items()) + list(c_def.items()))
 
 # def show_category(request, cat_id):
 #     posts = Professions.objects.filter(cat_id=cat_id)

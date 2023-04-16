@@ -22,8 +22,12 @@ from django.urls import path, include
 
 from profimentor import settings
 
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/v1/professionslist', ProfessionsAPIView.as_view()),
+    path('api/v1/professionslist/<int:pk>/', ProfessionsAPIView.as_view()),
     path('captcha/', include('captcha.urls')),
     path('', include('professions.urls')),
 ]

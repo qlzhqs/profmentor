@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'debug_toolbar',
     'captcha',
-    'professions.apps.ProfessionsConfig'
+    'professions.apps.ProfessionsConfig',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [

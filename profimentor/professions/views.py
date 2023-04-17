@@ -10,48 +10,60 @@ from django.views.generic import ListView, DetailView, CreateView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from rest_framework import generics, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .forms import *
 from .models import *
+from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
 from .serializers import ProfessionsSerializer
 from .utils import *
 
 
-class ProfessionsViewSet(viewsets.ModelViewSet):
-    # queryset = Professions.objects.all()
+class ProfessionsAPIList(generics.ListCreateAPIView):
+    queryset = Professions.objects.all()
     serializer_class = ProfessionsSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly, )
 
-    def get_queryset(self):
-        pk = self.kwargs.get("pk")
-
-        if not pk:
-            return Professions.objects.all()[:]
-
-        return Professions.objects.filter(pk=pk)
+class ProfessionsAPIUpdate(generics.RetrieveUpdateAPIView):
+    queryset = Professions.objects.all()
+    serializer_class = ProfessionsSerializer
+    permission_classes = (IsOwnerOrReadOnly, )
 
 
-    @action(methods=['get'], detail=True)
-    def category(self, request, pk=None):
-        cats = Category.objects.get(pk=pk)
-        return Response({'cats': cats.name})
+class ProfessionsAPIDestroy(generics.RetrieveDestroyAPIView):
+    queryset = Professions.objects.all()
+    serializer_class = ProfessionsSerializer
+    permission_classes = (IsAdminOrReadOnly, )
 
-
-
-
-# class ProfessionsAPIList(generics.ListCreateAPIView):
-#     queryset = Professions.objects.all()
-#     serializer_class = ProfessionsSerializer
-#
-# class ProfessionsAPIUpdate(generics.UpdateAPIView):
-#     queryset = Professions.objects.all()
-#     serializer_class = ProfessionsSerializer
-#
-#
 # class ProfessionsAPIDetailView(generics.RetrieveUpdateDestroyAPIView):
 #     queryset = Professions.objects.all()
 #     serializer_class = ProfessionsSerializer
+
+
+# class ProfessionsViewSet(viewsets.ModelViewSet):
+#     # queryset = Professions.objects.all()
+#     serializer_class = ProfessionsSerializer
+#
+#     def get_queryset(self):
+#         pk = self.kwargs.get("pk")
+#
+#         if not pk:
+#             return Professions.objects.all()[:]
+#
+#         return Professions.objects.filter(pk=pk)
+#
+#
+#     @action(methods=['get'], detail=True)
+#     def category(self, request, pk=None):
+#         cats = Category.objects.get(pk=pk)
+#         return Response({'cats': cats.name})
+#
+
+
+
+
 
 
 

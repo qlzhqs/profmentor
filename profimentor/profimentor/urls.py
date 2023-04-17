@@ -24,13 +24,15 @@ from profimentor import settings
 
 from rest_framework import routers
 
-router = routers.DefaultRouter()
-router.register(r'professions', ProfessionsViewSet, basename='professions')
-print(router.urls)
+# router = routers.DefaultRouter()
+# router.register(r'professions', ProfessionsViewSet, basename='professions')
+# print(router.urls)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/v1/', include(router.urls)),
+    path('api/v1/professions/', ProfessionsAPIList.as_view()),
+    path('api/v1/professions/<int:pk>/', ProfessionsAPIUpdate.as_view()),
+    path('api/v1/professionsdelete/<int:pk>/', ProfessionsAPIDestroy.as_view()),
     # path('api/v1/professionslist', ProfessionsViewSet.as_view({'get': 'list'})),
     # path('api/v1/professionslist/<int:pk>/', ProfessionsViewSet.as_view({'put': 'update'})),
     path('captcha/', include('captcha.urls')),

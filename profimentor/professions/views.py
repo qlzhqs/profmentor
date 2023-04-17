@@ -10,7 +10,8 @@ from django.views.generic import ListView, DetailView, CreateView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from rest_framework import generics, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -20,16 +21,20 @@ from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
 from .serializers import ProfessionsSerializer
 from .utils import *
 
-
+class ProfessionsAPIListPagination(PageNumberPagination):
+    page_size = 3
+    page_size_query_param = 'page_size'
+    max_page_size = 2
 class ProfessionsAPIList(generics.ListCreateAPIView):
     queryset = Professions.objects.all()
     serializer_class = ProfessionsSerializer
     permission_classes = (IsAuthenticatedOrReadOnly, )
+    pagination_class = ProfessionsAPIListPagination
 
 class ProfessionsAPIUpdate(generics.RetrieveUpdateAPIView):
     queryset = Professions.objects.all()
     serializer_class = ProfessionsSerializer
-    permission_classes = (IsOwnerOrReadOnly, )
+    permission_classes = (IsAuthenticated, )
 
 
 class ProfessionsAPIDestroy(generics.RetrieveDestroyAPIView):

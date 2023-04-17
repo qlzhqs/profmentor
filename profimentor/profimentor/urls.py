@@ -15,13 +15,13 @@ Including another URLconf
 """
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
 
 from professions.views import *
 from django.urls import path, include
 
 from profimentor import settings
-
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 from rest_framework import routers
 
 # router = routers.DefaultRouter()
@@ -30,6 +30,7 @@ from rest_framework import routers
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/v1/prof-auth/', include('rest_framework.urls')),
     path('api/v1/professions/', ProfessionsAPIList.as_view()),
     path('api/v1/professions/<int:pk>/', ProfessionsAPIUpdate.as_view()),
     path('api/v1/professionsdelete/<int:pk>/', ProfessionsAPIDestroy.as_view()),
@@ -37,6 +38,11 @@ urlpatterns = [
     # path('api/v1/professionslist/<int:pk>/', ProfessionsViewSet.as_view({'put': 'update'})),
     path('captcha/', include('captcha.urls')),
     path('', include('professions.urls')),
+    path('api/v1/auth/', include('djoser.urls')),
+    re_path(r'^auth/', include('djoser.urls.authtoken')),
+    path('api/v1/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/v1/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/v1/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 ]
 
 if settings.DEBUG:

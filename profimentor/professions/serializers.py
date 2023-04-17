@@ -11,22 +11,36 @@ from .models import Professions
 #         self.title = title
 #         self.content = content
 
-class ProfessionsSerializer(serializers.Serializer):
-    title = serializers.CharField(max_length=255)
-    slug = serializers.SlugField(max_length=255)
-    content = serializers.CharField()
-    cat_id = serializers.IntegerField()
+class ProfessionsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Professions
+        fields = ("title", "slug", "content", "cat")
 
-    def create(self, validated_data):
-        return Professions.objects.create(**validated_data)
 
-    def update(self, instance, validated_data):
-        instance.title = validated_data.get("title", instance.title)
-        instance.slug = validated_data.get("slug", instance.slug)
-        instance.content = validated_data.get("content", instance.content)
-        instance.cat_id = validated_data.get("cat_id", instance.cat_id)
-        instance.save()
-        return instance
+
+
+
+
+
+
+
+
+
+    # title = serializers.CharField(max_length=255)
+    # slug = serializers.SlugField(max_length=255)
+    # content = serializers.CharField()
+    # cat_id = serializers.IntegerField()
+    #
+    # def create(self, validated_data):
+    #     return Professions.objects.create(**validated_data)
+    #
+    # def update(self, instance, validated_data):
+    #     instance.title = validated_data.get("title", instance.title)
+    #     instance.slug = validated_data.get("slug", instance.slug)
+    #     instance.content = validated_data.get("content", instance.content)
+    #     instance.cat_id = validated_data.get("cat_id", instance.cat_id)
+    #     instance.save()
+    #     return instance
 
 
 

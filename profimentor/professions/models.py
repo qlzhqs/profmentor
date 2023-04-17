@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 
@@ -8,6 +9,7 @@ class Professions (models.Model):
     content = models.TextField(blank=True, verbose_name="Текст статьи")
     photo = models.ImageField (upload_to="photos/%Y/%m/%d/", verbose_name="Фото")
     cat = models.ForeignKey('Category', on_delete=models.PROTECT, verbose_name="Категория")
+    user = models.ForeignKey(User, verbose_name='Пользователь', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.title

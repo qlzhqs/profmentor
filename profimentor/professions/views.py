@@ -8,7 +8,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from rest_framework import generics
+from rest_framework import generics, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -18,51 +19,42 @@ from .serializers import ProfessionsSerializer
 from .utils import *
 
 
-class ProfessionsAPIView(APIView):
-    def get(self, request):
-        p = Professions.objects.all()
-        return Response({'posts': ProfessionsSerializer(p, many=True).data})
+class ProfessionsViewSet(viewsets.ModelViewSet):
+    # queryset = Professions.objects.all()
+    serializer_class = ProfessionsSerializer
 
-    def post(self, request):
-        serializer = ProfessionsSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+    def get_queryset(self):
+        pk = self.kwargs.get("pk")
 
-        return Response({'post': serializer.data})
-
-    def put(self, request, *args, **kwargs):
-        pk = kwargs.get("pk", None)
         if not pk:
-            return Response({"error": "Method PUT not allowed"})
+            return Professions.objects.all()[:]
 
-        try:
-            instance = Professions.objects.get(pk=pk)
-        except:
-            return Response({"error": "Object does not exists"})
-
-        serializer = ProfessionsSerializer(data=request.data, instance=instance)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response({"post": serializer.data})
-
-    def delete(self, request, *args, **kwargs):
-        pk = kwargs.get("pk", None)
-        if not pk:
-            return Response({"error": "Method DELETE not allowed"})
-
-        # здесь код для удаления записи с переданным pk
-        try:
-            record = Professions.objects.get(pk=pk)
-            record.delete()
-        except:
-            return Response({"error": "Object does not exists"})
-
-        return Response({"post": "delete post " + str(pk)})
+        return Professions.objects.filter(pk=pk)
 
 
-# class ProfessionsAPIView(generics.ListAPIView):
+    @action(methods=['get'], detail=True)
+    def category(self, request, pk=None):
+        cats = Category.objects.get(pk=pk)
+        return Response({'cats': cats.name})
+
+
+
+
+# class ProfessionsAPIList(generics.ListCreateAPIView):
 #     queryset = Professions.objects.all()
 #     serializer_class = ProfessionsSerializer
+#
+# class ProfessionsAPIUpdate(generics.UpdateAPIView):
+#     queryset = Professions.objects.all()
+#     serializer_class = ProfessionsSerializer
+#
+#
+# class ProfessionsAPIDetailView(generics.RetrieveUpdateDestroyAPIView):
+#     queryset = Professions.objects.all()
+#     serializer_class = ProfessionsSerializer
+
+
+
 
 
 
